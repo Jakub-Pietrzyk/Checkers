@@ -54,6 +54,7 @@ class Net {
             if(data["id"] == 1){
               var div = $("<div class='block-page'>Waiting for second player to join</div>")
               div.appendTo($("body"))
+              ui.block_clicks = true;
               var dots = "";
               var checkingPlayersInterval = setInterval(function() {
                 dots += ".";
@@ -71,6 +72,7 @@ class Net {
                       $(".block-page").remove();
                       instance.createFlash("Second player joined");
                       clearInterval(checkingPlayersInterval);
+                      ui.block_clicks = false;
                     }
                   }, error: function(xhr,status,error){
                     console.log(xhr);
@@ -83,6 +85,53 @@ class Net {
         error: function(xhr,status,error) {
           console.log(xhr);
         }
+      })
+    }
+
+    updateGameArray(){
+      $.ajax({
+          url: '/',
+          data: {
+              action: "UPDATE_ARRAY",
+              array: JSON.stringify(game.game_array)
+          },
+          type: 'POST',
+          success: function (response) {
+            if(response == "START_TIME"){
+              var div = $("<div class='block-page'>Second player move <br /><div class='seconds' style='font-style:50px'>30</div></div>")
+              div.appendTo($("body"));
+              ui.block_clicks = true;
+              var waitForOtherPlayerMove = setInterval(function(){
+                $.ajax({
+                  url: "/",
+                  data: {
+                    action: "WAIT_MOVE",
+                    array: JSON.stringify(game.game_array)
+                  },
+                  type: "POST",
+                  success: function (response){
+                    var data = JSON.parse(response);
+                    game.game_array = data["array"];
+                    if(data["change_move"]){
+                      ui.block_clicks = false;
+                      $(".block-page").remove();
+                      clearInterval(waitForOtherPlayerMove);
+                      game.updatePawns();
+                    }
+                  },
+                  error: function(xhr, status, error){
+                    console.log(xhr);
+                  }
+                })
+                var time = $(".seconds")
+                var new_seconds = parseInt(time.html()) - 1;
+                time.html(new_seconds);
+              },1000)
+            }
+          },
+          error: function (xhr, status, error) {
+              console.log(xhr);
+          },
       })
     }
 }

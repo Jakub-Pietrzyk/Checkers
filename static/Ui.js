@@ -3,7 +3,8 @@ class Ui {
     constructor() {
         console.log("konstruktor klasy Ui")
         this.clicks();
-        this.active_pawn = null
+        this.active_pawn = null;
+        this.block_clicks = false;
     }
 
     clicks(){
@@ -29,13 +30,13 @@ class Ui {
 
           var intersects = game.raycaster.intersectObjects(game.scene.children);
 
-          if (intersects.length > 1 && net.logged) {
-            var uuid = intersects[0].object.uuid
+          if (intersects.length > 1 && net.logged && !ui.block_clicks) {
+            var name = intersects[0].object.name
 
-            if(Object.keys(game.moveable_fields).includes(uuid) && ui.active_pawn != null){
+            if(Object.keys(game.moveable_fields).includes(name) && ui.active_pawn != null){
               ui.active_pawn.movePawn(intersects[0].object);
             }
-
+            
             if (game.pawns[net.player_color].includes(intersects[0].object)){
               intersects[0].object.setActivePawn();
             }

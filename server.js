@@ -2,6 +2,7 @@ var http = require("http");
 var fs = require("fs");
 var qs = require("querystring");
 var users = [];
+var gameArray = [];
 
 function servResponse(req, res) {
     var allData = "";
@@ -41,6 +42,18 @@ function servResponse(req, res) {
         } else if(finish["action"] == "CHECK"){
           obj = {count: users.length}
           res.end("" + JSON.stringify(obj), null, 4);
+        } else if(finish["action"] == "UPDATE_ARRAY"){
+          gameArray = JSON.parse(finish["array"]);
+          res.end("START_TIME", null, 4);
+        } else if(finish["action"] == "WAIT_MOVE"){
+          obj = {
+            array: gameArray,
+            change_move: false
+          }
+          if(finish["array"] != JSON.stringify(gameArray)){
+            obj.change_move = true;
+          }
+          res.end("" + JSON.stringify(obj),null,4)
         }
     })
 }

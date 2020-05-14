@@ -34,7 +34,9 @@ class Pawn extends THREE.Mesh {
     movePawn(field){
       var correctRows = [this.row + 1, this.row - 1]
       var correctColumns = [this.column + 1, this.column - 1]
-      var field_data = game.moveable_fields[field.uuid]
+      var field_data = game.moveable_fields[field.name]
+      var old_row = this.row;
+      var old_column = this.column;
       if(correctRows.includes(field_data["row"]) && correctColumns.includes(field_data["column"])){
         var is_friendly_pawn = false
         for(var i=0;i<game.pawns[net.player_color].length;i++){
@@ -46,6 +48,15 @@ class Pawn extends THREE.Mesh {
           this.position.z = field.position.z;
           this.row = field_data["row"];
           this.column = field_data["column"];
+          game.game_array[old_row][old_column] = 0;
+          if(net.player_color == "white"){
+            game.game_array[this.row][this.column] = 2
+          } else if (net.player_color == "black"){
+            game.game_array[this.row][this.column] = 1
+          }
+          ui.active_pawn = null;
+          this.material.color.set(game.COLORS[net.player_color].color);
+          net.updateGameArray();
         }
       }
     }
