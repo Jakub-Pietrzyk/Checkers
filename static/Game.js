@@ -184,5 +184,14 @@ class Game {
           }
         }
       }
+      while(black_count < black_array.length){
+        game.scene.remove(black_array[black_count])
+        black_count++;
+      }
+
+      while(white_count < white_array.length){
+        game.scene.remove(white_array[white_count])
+        white_count++;
+      }
     }
 }

@@ -5,6 +5,7 @@ class Net {
         this.logged = false;
         this.nick = "";
         this.player_color = "";
+        this.enemy_color = "";
     }
 
     createFlash(text=""){
@@ -51,6 +52,8 @@ class Net {
             game.addUser(data["color"]);
             instance.logged = true;
             instance.player_color = data["color"];
+            if(data["color"] == "white") instance.enemy_color = "black";
+            if(data["color"] == "black") instance.enemy_color = "white";
             if(data["id"] == 1){
               var div = $("<div class='block-page'>Waiting for second player to join</div>")
               div.appendTo($("body"))
