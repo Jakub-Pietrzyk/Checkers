@@ -3,6 +3,23 @@ var fs = require("fs");
 var qs = require("querystring");
 var users = [];
 var gameArray = [];
+var time = 30;
+var countTimeInterval = null;
+var start_time = true;
+var time_ended = false;
+var send_twice = 0;
+
+function timer(){
+  time = 30;
+  clearInterval(countTimeInterval);
+  countTimeInterval = setInterval(function(){
+    time--;
+    console.log(time);
+    if(time <= 0){
+      time_ended = true;
+    }
+  },1000)
+}
 
 function servResponse(req, res) {
     var allData = "";
@@ -44,14 +61,45 @@ function servResponse(req, res) {
           res.end("" + JSON.stringify(obj), null, 4);
         } else if(finish["action"] == "UPDATE_ARRAY"){
           gameArray = JSON.parse(finish["array"]);
+          if(start_time){
+            start_time = false
+            countTimeInterval = setInterval(function(){
+              time--;
+              if(time <= 0){
+                time_ended = true;
+              }
+            },1000)
+          }
           res.end("START_TIME", null, 4);
         } else if(finish["action"] == "WAIT_MOVE"){
           obj = {
             array: gameArray,
-            change_move: false
+            change_move: false,
+            time: time
           }
-          if(finish["array"] != JSON.stringify(gameArray)){
+          if(finish["array"] != JSON.stringify(gameArray) || time_ended){
             obj.change_move = true;
+            timer();
+            send_twice++;
+            if(send_twice == 2){
+              send_twice = 0;
+              time_ended = false;
+            }
+          }
+          res.end("" + JSON.stringify(obj),null,4)
+        } else if(finish["action"] == "MY_TIME"){
+          obj = {
+            time: time,
+            ended: false
+          }
+          if(time_ended){
+            obj.ended = true;
+            timer();
+            send_twice++;
+            if(send_twice == 2){
+              send_twice = 0;
+              time_ended = false;
+            }
           }
           res.end("" + JSON.stringify(obj),null,4)
         }

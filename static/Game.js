@@ -147,8 +147,14 @@ class Game {
 
       game.raycaster = new THREE.Raycaster();
       game.mouseVector = new THREE.Vector2();
+
+      var div = $("<div class='timer'>30</div>")
+      div.appendTo($("body"));
       if(color == "white"){
         net.updateGameArray();
+      }
+      if(color == "black"){
+        net.updatePlayerClock();
       }
     }
 
@@ -193,5 +199,7 @@ class Game {
         game.scene.remove(white_array[white_count])
         white_count++;
       }
+
+      net.updatePlayerClock();
     }
 }

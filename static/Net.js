@@ -31,7 +31,7 @@ class Net {
             // var data = JSON.parse(response)
           },
           error: function (xhr, status, error) {
-              console.log(xhr);
+              // console.log(xhr);
           },
       })
     }
@@ -86,7 +86,7 @@ class Net {
           }
         },
         error: function(xhr,status,error) {
-          console.log(xhr);
+          // console.log(xhr);
         }
       })
     }
@@ -101,40 +101,65 @@ class Net {
           type: 'POST',
           success: function (response) {
             if(response == "START_TIME"){
-              var div = $("<div class='block-page'>Second player move <br /><div class='seconds' style='font-style:50px'>30</div></div>")
-              div.appendTo($("body"));
-              ui.block_clicks = true;
-              var waitForOtherPlayerMove = setInterval(function(){
-                $.ajax({
-                  url: "/",
-                  data: {
-                    action: "WAIT_MOVE",
-                    array: JSON.stringify(game.game_array)
-                  },
-                  type: "POST",
-                  success: function (response){
-                    var data = JSON.parse(response);
-                    game.game_array = data["array"];
-                    if(data["change_move"]){
-                      ui.block_clicks = false;
-                      $(".block-page").remove();
-                      clearInterval(waitForOtherPlayerMove);
-                      game.updatePawns();
-                    }
-                  },
-                  error: function(xhr, status, error){
-                    console.log(xhr);
-                  }
-                })
-                var time = $(".seconds")
-                var new_seconds = parseInt(time.html()) - 1;
-                time.html(new_seconds);
-              },1000)
+              net.waitForOtherPlayer()
             }
           },
           error: function (xhr, status, error) {
-              console.log(xhr);
+              // console.log(xhr);
           },
       })
     }
+
+    waitForOtherPlayer(){
+      var div = $("<div class='block-page'>Second player move</div>")
+      div.appendTo($("body"));
+      ui.block_clicks = true;
+      var waitForOtherPlayerMove = setInterval(function(){
+        $.ajax({
+          url: "/",
+          data: {
+            action: "WAIT_MOVE",
+            array: JSON.stringify(game.game_array)
+          },
+          type: "POST",
+          success: function (response){
+            var data = JSON.parse(response);
+            $(".timer").html(data["time"]);
+            game.game_array = data["array"];
+            if(data["change_move"] || data["time_ended"]){
+              ui.block_clicks = false;
+              $(".block-page").remove();
+              clearInterval(waitForOtherPlayerMove);
+              game.updatePawns();
+            }
+          },
+          error: function(xhr, status, error){
+            // console.log(xhr);
+          }
+        })
+      },500)
+    }
+
+    updatePlayerClock(){
+      var myTime = setInterval(function(){
+        $.ajax({
+          url: "/",
+          data: {
+            action: "MY_TIME"
+          },
+          type: "POST",
+          success: function(response){
+            var data = JSON.parse(response);
+            $(".timer").html(data["time"]);
+            if(data["ended"]){
+              clearInterval(myTime);
+              net.waitForOtherPlayer()
+            }
+          }, error: function(xhr, status, error){
+            // console.log(xhr);
+          }
+        })
+      },500)
+    }
+
 }
