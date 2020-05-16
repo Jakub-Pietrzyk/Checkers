@@ -14,11 +14,25 @@ function timer(){
   clearInterval(countTimeInterval);
   countTimeInterval = setInterval(function(){
     time--;
-    console.log(time);
     if(time <= 0){
       time_ended = true;
     }
   },1000)
+}
+
+function checkWin(){
+  var wons =[true,true]
+  for(var i=0;i<gameArray.length;i++){
+    var row = gameArray[i];
+    for(var j=0;j<row.length;j++){
+      if(row[j] == 1){
+        wons[1] = false
+      } else if(row[j] == 2){
+        wons[0] = false
+      }
+    }
+  }
+  return wons
 }
 
 function servResponse(req, res) {
@@ -70,12 +84,20 @@ function servResponse(req, res) {
               }
             },1000)
           }
-          res.end("START_TIME", null, 4);
+          var wins = checkWin()
+          if(wins[0]){
+            res.end("BLACK_WON", null, 4);
+          } else if(wins[1]){
+            res.end("WHITE_WON", null, 4);
+          } else {
+              res.end("START_TIME", null, 4);
+          }
         } else if(finish["action"] == "WAIT_MOVE"){
           obj = {
             array: gameArray,
             change_move: false,
-            time: time
+            time: time,
+            won: false
           }
           if(finish["array"] != JSON.stringify(gameArray) || time_ended){
             obj.change_move = true;
@@ -85,6 +107,12 @@ function servResponse(req, res) {
               send_twice = 0;
               time_ended = false;
             }
+          }
+          var wins = checkWin()
+          if(wins[0]){
+            obj.won = "BLACK_WON"
+          } else if(wins[1]){
+            obj.won = "WHITE_WON"
           }
           res.end("" + JSON.stringify(obj),null,4)
         } else if(finish["action"] == "MY_TIME"){

@@ -102,6 +102,8 @@ class Net {
           success: function (response) {
             if(response == "START_TIME"){
               net.waitForOtherPlayer()
+            } else {
+              ui.won_table(response)
             }
           },
           error: function (xhr, status, error) {
@@ -124,13 +126,17 @@ class Net {
           type: "POST",
           success: function (response){
             var data = JSON.parse(response);
-            $(".timer").html(data["time"]);
-            game.game_array = data["array"];
-            if(data["change_move"] || data["time_ended"]){
-              ui.block_clicks = false;
-              $(".block-page").remove();
-              clearInterval(waitForOtherPlayerMove);
-              game.updatePawns();
+            if(data["won"] != false){
+              ui.won_table(data["won"])
+            } else {
+              $(".timer").html(data["time"]);
+              game.game_array = data["array"];
+              if(data["change_move"] || data["time_ended"]){
+                ui.block_clicks = false;
+                $(".block-page").remove();
+                clearInterval(waitForOtherPlayerMove);
+                game.updatePawns();
+              }
             }
           },
           error: function(xhr, status, error){

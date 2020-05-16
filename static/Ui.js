@@ -36,7 +36,7 @@ class Ui {
             if(Object.keys(game.moveable_fields).includes(name) && ui.active_pawn != null){
               ui.active_pawn.movePawn(intersects[0].object);
             }
-            
+
             if (game.pawns[net.player_color].includes(intersects[0].object)){
               intersects[0].object.setActivePawn();
             }
@@ -48,5 +48,12 @@ class Ui {
       $(".remove-flash").on("click",function(){
         $(".flash").remove();
       })
+    }
+
+    won_table(text){
+      if(text == "BLACK_WON") var div = $("<div class='block-page'>Black player won</div>")
+      if(text == "WHITE_WON") var div = $("<div class='block-page'>White player won</div>")
+      div.appendTo($("body"));
+      ui.block_clicks = true;
     }
 }
